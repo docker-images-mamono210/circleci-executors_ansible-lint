@@ -12,8 +12,8 @@ RUN groupadd --gid 3434 circleci \
   && echo 'circleci ALL=NOPASSWD: ALL' >> /etc/sudoers.d/50-circleci \
   && echo 'Defaults    env_keep += "DEBIAN_FRONTEND"' >> /etc/sudoers.d/env_keep
 
-# Install Ansible-lint and yammlint
-RUN sudo -u circleci pip3 install --user "ansible-lint[community,yamllint]"
+# Install Ansible and Ansible-lint
+RUN sudo -u circleci pip3 install --user ansible ansible-lint
 
 USER circleci
 ENV PATH /home/circleci/.local/bin:/home/circleci/bin:${PATH}
