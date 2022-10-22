@@ -13,7 +13,7 @@ RUN groupadd --gid 3434 circleci \
   && echo 'Defaults    env_keep += "DEBIAN_FRONTEND"' >> /etc/sudoers.d/env_keep
 
 # Install Ansible and Ansible-lint
-RUN sudo -u circleci pip3 install --user ansible ansible-lint
+RUN sudo -u circleci pip3 install --user ansible ansible-lint==6.5.2
 
 USER circleci
 ENV PATH /home/circleci/.local/bin:/home/circleci/bin:${PATH}
