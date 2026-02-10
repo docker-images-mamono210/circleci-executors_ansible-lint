@@ -68,20 +68,30 @@ jobs:
             # ansible-lint version
             ANSIBLE_LINT_VER="$(docker run --rm ansible-lint:test ansible-lint --version | awk 'NR==1 {print $2}')"
 
-            # python version
+            # python version (例: "Python 3.11.8")
             PY_FULL="$(docker run --rm ansible-lint:test python --version | awk '{print $2}')"
-            PY_TAG="py${PY_FULL}"
 
-            TAG="${ANSIBLE_LINT_VER}-${PY_TAG}"
+            # py major.minor (例: 3.11)
+            PY_MM="$(echo "$PY_FULL" | awk -F. '{print $1 "." $2}')"
+
+            PY_TAG_FULL="py${PY_FULL}"
+            PY_MM_TAG="py${PY_MM}"
+
+            TAG_FULL="${ANSIBLE_LINT_VER}-${PY_TAG_FULL}"
+            TAG_MM="${ANSIBLE_LINT_VER}-${PY_MM_TAG}"
 
             echo "ANSIBLE_LINT_VER=$ANSIBLE_LINT_VER"
             echo "PY_FULL=$PY_FULL"
-            echo "TAG=$TAG"
+            echo "PY_MM=$PY_MM"
+            echo "TAG_FULL=$TAG_FULL"
+            echo "TAG_MM=$TAG_MM"
 
             echo "export ANSIBLE_LINT_VER=$ANSIBLE_LINT_VER" >> $BASH_ENV
             echo "export PY_FULL=$PY_FULL" >> $BASH_ENV
-            echo "export PY_TAG=$PY_TAG" >> $BASH_ENV
-            echo "export IMAGE_TAG=$TAG" >> $BASH_ENV
+            echo "export PY_MM=$PY_MM" >> $BASH_ENV
+            echo "export IMAGE_TAG_FULL=$TAG_FULL" >> $BASH_ENV
+            echo "export IMAGE_TAG_MM=$TAG_MM" >> $BASH_ENV
+
       - run:
           name: Push image with version tag
           command: |
@@ -90,8 +100,11 @@ jobs:
 
             IMAGE="ghcr.io/docker-images-mamono210/circleci-executors/ansible-lint"
 
-            docker tag ansible-lint:test "${IMAGE}:${IMAGE_TAG}"
-            docker push "${IMAGE}:${IMAGE_TAG}"
+            docker tag ansible-lint:test "${IMAGE}:${IMAGE_TAG_FULL}"
+            docker push "${IMAGE}:${IMAGE_TAG_FULL}"
+
+            docker tag ansible-lint:test "${IMAGE}:${IMAGE_TAG_MM}"
+            docker push "${IMAGE}:${IMAGE_TAG_MM}"
       - run:
           name: Push image with latest-py tag (recommended)
           command: |
@@ -100,8 +113,8 @@ jobs:
 
             IMAGE="ghcr.io/docker-images-mamono210/circleci-executors/ansible-lint"
 
-            docker tag ansible-lint:test "${IMAGE}:latest-${PY_TAG}"
-            docker push "${IMAGE}:latest-${PY_TAG}"
+            docker tag ansible-lint:test "${IMAGE}:latest"
+            docker push "${IMAGE}:latest"
   yamllint:
     executor: yamllint/default
     steps:
